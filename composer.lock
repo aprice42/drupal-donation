@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2eef104a16172979f5fdf0e8ced7861e",
+    "content-hash": "3f438e3c6a89f6357a48400ca7234c38",
     "packages": [
         {
             "name": "alchemy/zippy",
@@ -3249,6 +3249,61 @@
             ],
             "description": "Automatic BASH completion for Symfony Console Component based applications.",
             "time": "2018-02-10T04:28:01+00:00"
+        },
+        {
+            "name": "stripe/stripe-php",
+            "version": "v6.15.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stripe/stripe-php.git",
+                "reference": "20e18a9feface85d183eece03e84013ff794d5b1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/20e18a9feface85d183eece03e84013ff794d5b1",
+                "reference": "20e18a9feface85d183eece03e84013ff794d5b1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "satooshi/php-coveralls": "~0.6.1",
+                "squizlabs/php_codesniffer": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stripe\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stripe and contributors",
+                    "homepage": "https://github.com/stripe/stripe-php/contributors"
+                }
+            ],
+            "description": "Stripe PHP Library",
+            "homepage": "https://stripe.com/",
+            "keywords": [
+                "api",
+                "payment processing",
+                "stripe"
+            ],
+            "time": "2018-08-03T10:54:52+00:00"
         },
         {
             "name": "symfony-cmf/routing",
