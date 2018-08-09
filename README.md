@@ -1,4 +1,4 @@
-# TS Donation Form Exercise
+# Drupal 8 Donation Form Exercise
 
 ## Installatiom
     clone repo
@@ -7,9 +7,12 @@
     drush en ts_donations
     
 ## Add Stripe API keys
-    Visit /admin/config/ and click `Configure Donations` to add api keys
+    Visit /admin/config and click `Configure Donations` to add api keys
 
 ## Use the form
     Submit the form and payments should be seen in your stripe dashboard
+
+## View Donation History
+    Visit /admin/config and click `Donations Report`
     
 

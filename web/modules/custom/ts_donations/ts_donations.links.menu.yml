@@ -1,6 +1,12 @@
 donations.admin_settings_form:
   title: 'Configure Donations'
   route_name: donations.admin_settings_form
-  description: 'Donation admin settings'
+  description: 'Donation admin settings.'
   parent: system.admin_config_system
+  weight: 99
+donations.list:
+  title: 'Donations Report'
+  route_name: donations.list
+  description: 'View Stripe transaction history.'
+  parent: system.admin_reports
   weight: 99

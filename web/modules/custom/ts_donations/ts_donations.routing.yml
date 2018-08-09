@@ -7,3 +7,10 @@ donations.admin_settings_form:
     _permission: 'access administration pages'
   options:
     _admin_route: TRUE
+donations.list:
+  path: '/admin/reports/donations'
+  defaults:
+    _controller: '\Drupal\ts_donations\Controller\DonationList::view'
+    _title: 'Donations Report'
+  requirements:
+    _permission: 'access administration pages'
