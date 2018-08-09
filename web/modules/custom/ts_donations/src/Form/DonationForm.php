@@ -21,15 +21,24 @@ class DonationForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['name'] = [
+
+    $form['errors'] = [
+      '#markup' => '<div class="form-errors"></div>'
+    ];
+
+    $form['contact_info'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Contact Info'),
+    ];
+    $form['contact_info']['name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Full Name'),
-      '#attributes' => array(
+      '#attributes' => [
         'data-stripe' => 'name',
-      ),
+      ],
       '#required' => TRUE,
     ];
-    $form['email'] = [
+    $form['contact_info']['email'] = [
       '#type' => 'email',
       '#title' => $this->t('Email'),
       '#required' => TRUE,
@@ -57,40 +66,92 @@ class DonationForm extends FormBase {
       '#states' => [
         'visible' => [
           'select[name="donation_option"]' => ['value' => 'other']
-        ]
+        ],
+        'required' => [
+        'select[name="donation_option"]' => ['value' => 'other'],
+        ],
       ],
     ];
-    $form['cc'] = [
-      '#type' => 'creditfield_cardnumber',
+
+    $form['cc_info'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Payment Info'),
+      '#required' => TRUE,
+    ];
+
+    $form['cc_info']['cc'] = [
+      '#type' => 'textfield',
       '#title' => $this->t('Credit Card Number'),
-      '#attributes' => array(
+      '#attributes' => [
         'data-stripe' => 'number',
-      ),
+      ],
       '#maxlength' => 16,
       '#required' => TRUE,
     ];
-    $form['expiration_date'] = array(
-      '#type' => 'creditfield_expiration',
-      '#title' => $this->t('Exp Date'),
+
+    $form['cc_info']['expiration_month'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Exp. Month'),
+      '#options' => [
+        '01' => $this->t('January'),
+        '02' => $this->t('February'),
+        '03' => $this->t('March'),
+        '04' => $this->t('April'),
+        '05' => $this->t('May'),
+        '06' => $this->t('June'),
+        '07' => $this->t('July'),
+        '08' => $this->t('August'),
+        '09' => $this->t('September'),
+        '10' => $this->t('October'),
+        '11' => $this->t('November'),
+        '12' => $this->t('December')
+      ],
       '#required' => TRUE,
-    );
-    $form['credit_card_cvc'] = array(
-      '#type' => 'creditfield_cardcode',
+      '#attributes' => [
+        'data-stripe' => 'exp_month',
+      ],
+    ];
+
+    $year_options = [];
+    for ($i = 2018; $i < 2030; $i++) {
+      $year_options[$i] = $i;
+    }
+    $form['cc_info']['expiration_year'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Exp. Year'),
+      '#required' => TRUE,
+      '#options' => $year_options,
+      '#attributes' => [
+        'data-stripe' => 'exp_year',
+      ],
+    ];
+
+    $form['cc_info']['credit_card_cvc'] = [
+      '#type' => 'textfield',
       '#title' => $this->t('CVC Code'),
-      '#attributes' => array(
+      '#attributes' => [
         'data-stripe' => 'cvc',
-      ),
+      ],
       '#maxlength' => 4,
       '#description' => 'Your 3 or 4 digit security code on the back of your card.',
       '#required' => TRUE,
-    );
+    ];
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Process Donation'),
+      '#prefix' => '<div hidden>',
+      '#suffix' => '</div>',
+    ];
+
+    $form['button'] = [
+      '#markup' => '<a id="trigger-donate" class="button" href="#">Submit Donation</a>',
     ];
 
     $form['#attached']['library'][] = 'ts_donations/donation';
 
+    $config = \Drupal::config('donation.apiKeys');
+    $publishable_key = $config->get('publishable');
+    $form['#attached']['drupalSettings']['donations']['publishable_key'] = $publishable_key;
 
     return $form;
   }
@@ -105,6 +166,16 @@ class DonationForm extends FormBase {
       $form_state->setErrorByName('donation_option', $this->t('Please select or enter a valid donation amount.'));
     }
 
+    $cc = $form_state->getValue('cc');
+    if (!is_numeric($cc)) {
+      $form_state->setErrorByName('cc', $this->t('Please enter a valid credit card number.'));
+    }
+
+    $cvc = $form_state->getValue('credit_card_cvc');
+    if (!is_numeric($cvc)) {
+      $form_state->setErrorByName('credit_card_cvc', $this->t('Please enter a valid CVC.'));
+    }
+
   }
 
   /**
@@ -114,9 +185,10 @@ class DonationForm extends FormBase {
     $donation = $this->getDonationAmount($form, $form_state);
     $amount = $this->makeCents($donation);
     $email = $form_state->getValue('email');
+    $token = $_POST['stripe_token'];
     $this->setKey();
     try {
-      $charge = $this->charge($amount, $email);
+      $charge = $this->charge($amount, $email, $token);
     }
     // Catch stripe errors
     catch(\Stripe\Error\Card $e) {
@@ -169,11 +241,11 @@ class DonationForm extends FormBase {
    *
    * @return \Stripe\ApiResource
    */
-  protected function charge($amount, $email) {
+  protected function charge($amount, $email, $token) {
     $charge = Charge::create([
       'amount' => $amount,
       'currency' => 'usd',
-      'source' => 'tok_visa', // @todo add actual card handling
+      'source' => $token, // @todo add actual card handling
       'receipt_email' => $email,
     ]);
     return $charge;
@@ -183,7 +255,9 @@ class DonationForm extends FormBase {
    * Initialize stripe secret key.
    */
   protected function setKey() {
-    Stripe::setApiKey("sk_test_3lKeeOscJK4c0Px7m36j8up6");
+    $config = \Drupal::config('donation.apiKeys');
+    $secret_key = $config->get('secret');
+    Stripe::setApiKey($secret_key);
   }
 
   /**

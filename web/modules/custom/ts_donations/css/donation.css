@@ -1,0 +1,6 @@
+.form-errors.visible {
+    background: #f57575;
+    padding: 20px;
+    border: 3px solid #d63d3d;
+    color: #fff;
+}

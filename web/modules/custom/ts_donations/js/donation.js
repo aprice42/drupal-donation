@@ -1,24 +1,22 @@
 /**
- * @file din homepage map.
- *
- * Defines behavior for the homepage map.
+ * Defines behavior for stripe integration.
  */
 
 (function ($, Drupal, drupalSettings) {
 
   $(function(){
-
-    Stripe.setPublishableKey('pk_test_wOSvCSrfoODfnfLdWUDtenUo');
     const $donationSubmit = $('#ts-donation-form input[type="submit"]');
-    $donationSubmit.on('click', function(e){
+    const $form = $('form#ts-donation-form');
+    const $trigger = $('#trigger-donate');
+    $trigger.on('click', function(e){
       e.preventDefault();
-      const $form = $('form#ts-donation-form');
+      console.log('click');
+      Stripe.setPublishableKey(drupalSettings.donations.publishable_key);
       Stripe.card.createToken($form, function(status, response) {
         if (response.error) {
           $form.append($('<input type="hidden" name="stripe_token" />').val('none'));
           // Show the errors on the form
-          $('.payment-errors').text(response.error.message);
-          console.log(response.error.message);
+          $('.form-errors').text(response.error.message).addClass('visible');
         }
         else {
           // response contains id and card, which contains additional card details
