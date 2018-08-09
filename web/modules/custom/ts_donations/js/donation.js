@@ -18,6 +18,7 @@
           $form.append($('<input type="hidden" name="stripe_token" />').val('none'));
           // Show the errors on the form
           $('.payment-errors').text(response.error.message);
+          console.log(response.error.message);
         }
         else {
           // response contains id and card, which contains additional card details

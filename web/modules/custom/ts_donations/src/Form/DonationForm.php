@@ -34,9 +34,31 @@ class DonationForm extends FormBase {
       '#title' => $this->t('Email'),
       '#required' => TRUE,
     ];
-    $form['donation_custom'] = [
-      '#type' => 'textfield',
+
+    $form['donations'] = [
+      '#type' => 'fieldset',
       '#title' => $this->t('Donation Amount'),
+    ];
+
+    $form['donations']['donation_option'] = [
+      '#type' => 'select',
+      '#required' => TRUE,
+      '#options' => [
+        25 => '$25',
+        50 => '$50',
+        100 => '$100',
+        'other' => $this->t('Other'),
+      ],
+    ];
+
+    $form['donations']['donation_other'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Other amount'),
+      '#states' => [
+        'visible' => [
+          'select[name="donation_option"]' => ['value' => 'other']
+        ]
+      ],
     ];
     $form['cc'] = [
       '#type' => 'creditfield_cardnumber',
@@ -78,19 +100,9 @@ class DonationForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // Check for proper amount.
-    $amount = $form_state->getValue('donation_custom');
-    if (is_numeric($amount)) {
-      $decimal_places = strlen(substr(strrchr($amount, "."), 1));
-      if ($decimal_places == 0) {
-        // If no decimals set value to have them.
-        $form_state->setValue('donation_custom', number_format($amount, 2));
-      }
-      elseif ($decimal_places != 2) {
-        $form_state->setErrorByName('donation_custom', $this->t('Donation amount can only have 2 decimal places.'));
-      }
-    }
-    else {
-      $form_state->setErrorByName('donation_custom', $this->t('Donation amount must be a valid number'));
+    $donation = $this->getDonationAmount($form, $form_state);
+    if (empty($donation)) {
+      $form_state->setErrorByName('donation_option', $this->t('Please select or enter a valid donation amount.'));
     }
 
   }
@@ -99,7 +111,8 @@ class DonationForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $amount = $this->makeCents($form_state->getValue('donation_custom'));
+    $donation = $this->getDonationAmount($form, $form_state);
+    $amount = $this->makeCents($donation);
     $email = $form_state->getValue('email');
     $this->setKey();
     try {
@@ -191,5 +204,24 @@ class DonationForm extends FormBase {
    */
   protected function makeCents($amount) {
     return $amount*100;
+  }
+
+  protected function getDonationAmount(array &$form, FormStateInterface $form_state) {
+    $donation_option = $form_state->getValue('donation_option');
+
+    if ($donation_option == 'other') {
+      $donation = $form_state->getValue('donation_other');
+    } else {
+      $donation = $form_state->getValue('donation_option');
+    }
+
+    // If value is not a number return FALSE.
+    if (!is_numeric($donation) || empty($donation)) {
+      return FALSE;
+    }
+    else {
+      // Format number and return value.
+      return number_format($donation, 2);
+    }
   }
 }
