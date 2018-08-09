@@ -8,6 +8,9 @@ use Stripe\Charge;
 
 class DonationList extends ControllerBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public function view() {
     $build = [];
 
@@ -41,6 +44,11 @@ class DonationList extends ControllerBase {
     return $build;
   }
 
+  /**
+   * Get donations from Stripe
+   * @return \Stripe\Collection
+   * @throws \Stripe\Error\Api
+   */
   protected function getDonations() {
     $this->setKey();
     $results = Charge::all(array("limit" => 25));
