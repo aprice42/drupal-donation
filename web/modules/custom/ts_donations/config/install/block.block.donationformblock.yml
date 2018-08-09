@@ -1,0 +1,26 @@
+uuid: dbfac664-2b16-47b8-9897-664bd2323e50
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+    - ts_donations
+  theme:
+    - bartik
+id: donationformblock
+theme: bartik
+region: content
+weight: 0
+provider: null
+plugin: ts_donation_block
+settings:
+  id: ts_donation_block
+  label: 'Make a Donation'
+  provider: ts_donations
+  label_display: visible
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }
