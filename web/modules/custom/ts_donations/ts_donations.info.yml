@@ -1,5 +1,7 @@
 name: 'TS Donations'
 description: 'Provides functionality for collecting donations.'
 type: module
+dependencies:
+  - creditfield
 core: 8.x
 package: 'TS'

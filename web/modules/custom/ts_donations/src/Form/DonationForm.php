@@ -24,23 +24,51 @@ class DonationForm extends FormBase {
     $form['name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Full Name'),
+      '#attributes' => array(
+        'data-stripe' => 'name',
+      ),
+      '#required' => TRUE,
     ];
     $form['email'] = [
       '#type' => 'email',
       '#title' => $this->t('Email'),
+      '#required' => TRUE,
     ];
     $form['donation_custom'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Donation Amount'),
     ];
+    $form['cc'] = [
+      '#type' => 'creditfield_cardnumber',
+      '#title' => $this->t('Credit Card Number'),
+      '#attributes' => array(
+        'data-stripe' => 'number',
+      ),
+      '#maxlength' => 16,
+      '#required' => TRUE,
+    ];
+    $form['expiration_date'] = array(
+      '#type' => 'creditfield_expiration',
+      '#title' => $this->t('Exp Date'),
+      '#required' => TRUE,
+    );
+    $form['credit_card_cvc'] = array(
+      '#type' => 'creditfield_cardcode',
+      '#title' => $this->t('CVC Code'),
+      '#attributes' => array(
+        'data-stripe' => 'cvc',
+      ),
+      '#maxlength' => 4,
+      '#description' => 'Your 3 or 4 digit security code on the back of your card.',
+      '#required' => TRUE,
+    );
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Process Donation'),
     ];
-    $form['token'] = [
-      '#type' => 'hidden',
-      '#value' => 'pk_test_wOSvCSrfoODfnfLdWUDtenUo',
-    ];
+
+    $form['#attached']['library'][] = 'ts_donations/donation';
+
 
     return $form;
   }
