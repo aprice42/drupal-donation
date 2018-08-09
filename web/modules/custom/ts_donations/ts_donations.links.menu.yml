@@ -1,0 +1,6 @@
+donations.admin_settings_form:
+  title: 'Configure Donations'
+  route_name: donations.admin_settings_form
+  description: 'Donation admin settings'
+  parent: system.admin_config_system
+  weight: 99
