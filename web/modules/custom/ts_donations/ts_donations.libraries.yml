@@ -1,0 +1,4 @@
+donation:
+  js:
+    //js.stripe.com/v2/: { type: external }
+    js/donation.js: {}
